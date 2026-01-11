@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AR Chess - Calibrare Inaltime</title>
+    
+    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+    
+    <style>
+        body { margin: 0; overflow: hidden; font-family: sans-serif; }
+        #ui-layer {
+            position: absolute; bottom: 20px; width: 100%; text-align: center; z-index: 10; pointer-events: none;
+        }
+        .btn {
+            background: rgba(0,0,0,0.7); color: white; padding: 10px 20px; 
+            border: 1px solid white; border-radius: 5px; pointer-events: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="ui-layer">
+        <div style="color: yellow; text-shadow: 1px 1px 2px black; font-weight: bold; font-size: 1.2em;">
+            Dacă plutește, modifică Y în cod!
+        </div>
+    </div>
+
+    <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono;" renderer="colorManagement: true;">
+        
+        <a-entity camera look-controls cursor="rayOrigin: mouse" raycaster="objects: .clickable"></a-entity>
+        
+        <a-light type="ambient" color="#FFF" intensity="0.5"></a-light>
+        <a-light type="directional" position="1 4 2" intensity="1"></a-light>
+
+        <a-marker preset="hiro" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5">
+            
+            <a-entity id="position-fix" position="-3.5 -1.5 -3.5" scale="0.15 0.15 0.15">
+
+                <a-plane rotation="-90 0 0" width="8" height="8" position="3.5 0 3.5" color="red" opacity="0.3"></a-plane>
+
+                <a-box position="3.5 0.2 3.5" width="8" height="0.4" depth="8" color="#5D4037"></a-box>
+                
+                <a-entity id="chessboard"></a-entity>
+
+            </a-entity>
+
+        </a-marker>
+    </a-scene>
+
+    <script>
+        // Logica simplificată pentru desenare rapidă
+        const COLORS = { white: '#F0D9B5', black: '#B58863', pcW: '#fff', pcB: '#333' };
+        
+        window.onload = () => {
+            const container = document.getElementById('chessboard');
+            for (let z = 0; z < 8; z++) {
+                for (let x = 0; x < 8; x++) {
+                    // Pătrate
+                    const sq = document.createElement('a-box');
+                    sq.setAttribute('position', `${x} 0.5 ${z}`); // 0.5 înălțime față de baza mesei
+                    sq.setAttribute('width', 1); sq.setAttribute('height', 0.2); sq.setAttribute('depth', 1);
+                    sq.setAttribute('color', (x+z)%2==0 ? COLORS.white : COLORS.black);
+                    container.appendChild(sq);
+
+                    // Piese Demo (Doar câteva pentru test)
+                    if (z < 2 || z > 5) {
+                        const pc = document.createElement('a-cylinder');
+                        pc.setAttribute('position', `${x} 1 ${z}`); // 1.0 înălțime
+                        pc.setAttribute('radius', 0.3); pc.setAttribute('height', 0.8);
+                        pc.setAttribute('color', z < 2 ? COLORS.pcW : COLORS.pcB);
+                        container.appendChild(pc);
+                    }
+                }
+            }
+        };
+    </script>
+</body>
+</html>
