@@ -2,69 +2,83 @@
 <html lang="ro">
 <head>
   <meta charset="UTF-8" />
-  <title>AR Checkers - HIRO Marker</title>
-
-  <!-- Important pentru mobile -->
+  <title>AR Checkers - Full Board</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
 
-  <!-- A-Frame -->
   <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
-
-  <!-- AR.js -->
   <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
 </head>
 
 <body style="margin: 0; overflow: hidden;">
 
-  <a-scene
-    embedded
-    vr-mode-ui="enabled: false"
-    arjs="
-      sourceType: webcam;
-      sourceWidth: 1280;
-      sourceHeight: 960;
-      displayWidth: 1280;
-      displayHeight: 960;
-    "
-  >
+  <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono;">
+    
+    <a-entity light="type: ambient; intensity: 0.7;"></a-entity>
+    <a-entity light="type: directional; intensity: 0.8; position: -1 4 2"></a-entity>
 
-    <!-- Marker HIRO -->
-    <a-marker preset="hiro" scale="0.7 0.7 0.7">
+    <a-marker preset="hiro" smooth="true" smoothCount="10">
 
-      <!-- Tabla de dame -->
-      <a-plane
-        rotation="-90 0 0"
-        width="4"
-        height="4"
-        color="#6b4226"
-      ></a-plane>
-
-      <!-- Piese albe (exemplu) -->
-      <a-cylinder
-        position="-1.5 0.1 -1.5"
-        radius="0.15"
-        height="0.1"
-        color="white"
-      ></a-cylinder>
-
-      <!-- Piese negre (exemplu) -->
-      <a-cylinder
-        position="1.5 0.1 1.5"
-        radius="0.15"
-        height="0.1"
-        color="black"
-      ></a-cylinder>
+      <a-entity id="board-container" scale="0.15 0.15 0.15" position="-3.5 0 -3.5">
+        </a-entity>
 
     </a-marker>
 
-    <!-- Camera -->
-    <a-entity
-      camera
-      position="0 0 0"
-      look-controls="enabled: false"
-    ></a-entity>
-
+    <a-entity camera></a-entity>
   </a-scene>
+
+  <script>
+    // Configurare
+    const container = document.getElementById('board-container');
+    const colors = {
+      lightSq: '#F0D9B5', // Crem
+      darkSq:  '#8B4513', // Maro închis
+      whitePc: '#EEEEEE',
+      blackPc: '#111111'
+    };
+
+    // Generare Tablă 8x8
+    for (let z = 0; z < 8; z++) {
+      for (let x = 0; x < 8; x++) {
+        
+        // 1. Creăm Pătratul
+        const isDark = (x + z) % 2 !== 0; // Dame se joacă pe pătratele întunecate
+        const square = document.createElement('a-box');
+        
+        square.setAttribute('position', `${x} 0 ${z}`);
+        square.setAttribute('width', 1);
+        square.setAttribute('height', 0.2); // Grosimea mesei
+        square.setAttribute('depth', 1);
+        square.setAttribute('color', isDark ? colors.darkSq : colors.lightSq);
+        container.appendChild(square);
+
+        // 2. Adăugăm Piesele (Doar pe pătratele întunecate)
+        if (isDark) {
+          // Piese Negre (Sus, rândurile 0, 1, 2)
+          if (z < 3) {
+            createPiece(x, z, 'black');
+          }
+          // Piese Albe (Jos, rândurile 5, 6, 7)
+          if (z > 4) {
+            createPiece(x, z, 'white');
+          }
+        }
+      }
+    }
+
+    // Funcție pentru crearea unei piese ("Damă")
+    function createPiece(x, z, color) {
+      const piece = document.createElement('a-cylinder');
+      piece.setAttribute('position', `${x} 0.2 ${z}`); // 0.2 înălțime (peste pătrat)
+      piece.setAttribute('radius', 0.35); // Cât de lată e piesa
+      piece.setAttribute('height', 0.2);  // Cât de înaltă e piesa
+      piece.setAttribute('color', color === 'white' ? colors.whitePc : colors.blackPc);
+      
+      // Adăugăm un mic contur metalic (opțional, arată mai bine)
+      piece.setAttribute('material', 'roughness: 0.5; metalness: 0.2');
+      
+      container.appendChild(piece);
+    }
+  </script>
 
 </body>
 </html>
