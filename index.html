@@ -3,18 +3,148 @@
 <head>
   <meta charset="UTF-8" />
   <title>AR Checkers - HIRO Marker</title>
-
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
 
   <!-- A-Frame -->
   <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
-
   <!-- AR.js -->
   <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+
+  <script>
+    // Componentă care:
+    // 1) desenează tabla 8x8 într-un canvas (1 singură textură -> fără z-fighting)
+    // 2) generează piesele inițiale 12+12
+    AFRAME.registerComponent('checkers-setup', {
+      init: function () {
+        const markerEl = this.el;
+
+        // --- Config board ---
+        const boardSize = 4.0;           // dimensiunea totală (width/depth)
+        const squares = 8;               // 8x8
+        const squareSize = boardSize / squares; // 0.5
+        const boardThickness = 0.35;
+
+        // tabla e centrată la (0, -0.22, 0)
+        const boardCenterY = -0.22;
+        const boardTopY = boardCenterY + boardThickness / 2; // top-ul plăcii
+
+        // --- Creează baza tablei (solid) ---
+        const base = document.createElement('a-box');
+        base.setAttribute('position', `0 ${boardCenterY} 0`);
+        base.setAttribute('width', boardSize);
+        base.setAttribute('height', boardThickness);
+        base.setAttribute('depth', boardSize);
+        base.setAttribute('color', '#e8d5a8');
+        markerEl.appendChild(base);
+
+        // --- Creează textura 8x8 într-un canvas ---
+        const canvas = document.createElement('canvas');
+        canvas.width = 1024;
+        canvas.height = 1024;
+        const ctx = canvas.getContext('2d');
+
+        const light = '#f2e3bf';
+        const dark  = '#8b5a2b';
+
+        // fundal
+        ctx.fillStyle = light;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // pătrate
+        const cell = canvas.width / squares;
+        for (let r = 0; r < squares; r++) {
+          for (let c = 0; c < squares; c++) {
+            // în dame, pătratele închise sunt cele (r+c) % 2 == 1 (depinde convenție)
+            if ((r + c) % 2 === 1) {
+              ctx.fillStyle = dark;
+              ctx.fillRect(c * cell, r * cell, cell, cell);
+            }
+          }
+        }
+
+        // opțional: margine discretă
+        ctx.strokeStyle = 'rgba(0,0,0,0.15)';
+        ctx.lineWidth = 10;
+        ctx.strokeRect(5, 5, canvas.width - 10, canvas.height - 10);
+
+        // --- Material A-Frame din canvas ---
+        const top = document.createElement('a-plane');
+        // plane-ul e pe suprafața tablei, puțin ridicat ca să nu se „bată” cu baza
+        const topY = boardTopY + 0.001;
+        top.setAttribute('position', `0 ${topY} 0`);
+        top.setAttribute('rotation', '-90 0 0');
+        top.setAttribute('width', boardSize);
+        top.setAttribute('height', boardSize);
+        top.setAttribute('material', `src: ${canvasToDataURL(canvas)}; roughness: 1; metalness: 0;`);
+        markerEl.appendChild(top);
+
+        // --- Generează piesele ---
+        // Convenție coordonate:
+        // x: -boardSize/2 + squareSize/2 + c*squareSize
+        // z: -boardSize/2 + squareSize/2 + r*squareSize
+        function cellCenter(c, r) {
+          const x = -boardSize / 2 + squareSize / 2 + c * squareSize;
+          const z = -boardSize / 2 + squareSize / 2 + r * squareSize;
+          return { x, z };
+        }
+
+        // piesă (cilindru)
+        const pieceRadius = 0.14;
+        const pieceHeight = 0.07;
+        // stă pe top plane:
+        const pieceY = topY + pieceHeight / 2; // plane e subțire, e ok
+
+        function addPiece(c, r, color, id) {
+          const { x, z } = cellCenter(c, r);
+          const p = document.createElement('a-cylinder');
+          p.setAttribute('id', id);
+          p.setAttribute('position', `${x} ${pieceY} ${z}`);
+          p.setAttribute('radius', pieceRadius);
+          p.setAttribute('height', pieceHeight);
+          p.setAttribute('color', color);
+          // ca să fie ușor de selectat mai târziu
+          p.setAttribute('class', 'piece');
+          p.setAttribute('data-col', c);
+          p.setAttribute('data-row', r);
+          markerEl.appendChild(p);
+        }
+
+        // Reguli inițiale (dame standard):
+        // - O culoare ocupă rândurile 0,1,2 pe pătratele închise
+        // - Cealaltă ocupă rândurile 5,6,7 pe pătratele închise
+        // Alegem:
+        //  - alb sus (rânduri 0..2)
+        //  - negru jos (rânduri 5..7)
+        let whiteCount = 0, blackCount = 0;
+
+        for (let r = 0; r <= 2; r++) {
+          for (let c = 0; c < squares; c++) {
+            if ((r + c) % 2 === 1) {
+              whiteCount++;
+              addPiece(c, r, '#f5f5f5', `w${whiteCount}`);
+            }
+          }
+        }
+
+        for (let r = 5; r <= 7; r++) {
+          for (let c = 0; c < squares; c++) {
+            if ((r + c) % 2 === 1) {
+              blackCount++;
+              addPiece(c, r, '#111', `b${blackCount}`);
+            }
+          }
+        }
+
+        // --- Helper: transform canvas to dataURL (no extra file needed) ---
+        function canvasToDataURL(cv) {
+          return cv.toDataURL('image/png');
+        }
+      }
+    });
+  </script>
 </head>
 
 <body style="margin: 0; overflow: hidden;">
-
   <a-scene
     embedded
     vr-mode-ui="enabled: false"
@@ -26,63 +156,11 @@
       displayHeight: 960;
     "
   >
-    <!-- Marker HIRO -->
-    <a-marker preset="hiro" scale="0.38 0.38 0.38">
-
-      <!-- TABLA (groasă) -->
-      <!-- Top-ul tablei este la y = -0.22 + 0.35/2 = -0.045 -->
-      <a-box
-        id="board-base"
-        position="0 -0.22 0"
-        width="4"
-        height="0.35"
-        depth="4"
-        color="#e8d5a8"
-      ></a-box>
-
-      <!-- PĂTRATE NEGRE ca plăcuțe (a-box), NU a-plane -->
-      <!-- Le punem puțin deasupra top-ului: y = -0.045 + 0.012 = -0.033 -->
-      <!-- Grosime plăcuță: 0.02 -->
-
-      <!-- RÂND 0 -->
-      <a-box position="-1.75 -0.033 -1.75" width="0.5" height="0.02" depth="0.5" color="#8b5a2b"></a-box>
-      <a-box position="-0.75 -0.033 -1.75" width="0.5" height="0.02" depth="0.5" color="#8b5a2b"></a-box>
-      <a-box position="0.25  -0.033 -1.75" width="0.5" height="0.02" depth="0.5" color="#8b5a2b"></a-box>
-      <a-box position="1.25  -0.033 -1.75" width="0.5" height="0.02" depth="0.5" color="#8b5a2b"></a-box>
-
-      <!-- RÂND 1 -->
-      <a-box position="-1.25 -0.033 -1.25" width="0.5" height="0.02" depth="0.5" color="#8b5a2b"></a-box>
-      <a-box position="-0.25 -0.033 -1.25" width="0.5" height="0.02" depth="0.5" color="#8b5a2b"></a-box>
-      <a-box position="0.75  -0.033 -1.25" width="0.5" height="0.02" depth="0.5" color="#8b5a2b"></a-box>
-      <a-box position="1.75  -0.033 -1.25" width="0.5" height="0.02" depth="0.5" color="#8b5a2b"></a-box>
-
-      <!-- RÂND 6 -->
-      <a-box position="-1.75 -0.033 1.25" width="0.5" height="0.02" depth="0.5" color="#8b5a2b"></a-box>
-      <a-box position="-0.75 -0.033 1.25" width="0.5" height="0.02" depth="0.5" color="#8b5a2b"></a-box>
-      <a-box position="0.25  -0.033 1.25" width="0.5" height="0.02" depth="0.5" color="#8b5a2b"></a-box>
-      <a-box position="1.25  -0.033 1.25" width="0.5" height="0.02" depth="0.5" color="#8b5a2b"></a-box>
-
-      <!-- RÂND 7 -->
-      <a-box position="-1.25 -0.033 1.75" width="0.5" height="0.02" depth="0.5" color="#8b5a2b"></a-box>
-      <a-box position="-0.25 -0.033 1.75" width="0.5" height="0.02" depth="0.5" color="#8b5a2b"></a-box>
-      <a-box position="0.75  -0.033 1.75" width="0.5" height="0.02" depth="0.5" color="#8b5a2b"></a-box>
-      <a-box position="1.75  -0.033 1.75" width="0.5" height="0.02" depth="0.5" color="#8b5a2b"></a-box>
-
-      <!-- PIESE (stau pe plăcuțe) -->
-      <!-- top plăcuță: -0.033 + 0.01 = -0.023 -->
-      <!-- piesa: y = top + (height/2) => -0.023 + 0.035 = 0.012 -->
-      <a-cylinder position="-1.75 0.012 -1.75" radius="0.14" height="0.07" color="#f5f5f5"></a-cylinder>
-      <a-cylinder position="1.25  0.012 -1.75" radius="0.14" height="0.07" color="#f5f5f5"></a-cylinder>
-
-      <a-cylinder position="-1.25 0.012 1.75" radius="0.14" height="0.07" color="#111"></a-cylinder>
-      <a-cylinder position="0.75  0.012 1.75" radius="0.14" height="0.07" color="#111"></a-cylinder>
-
-    </a-marker>
+    <!-- Marker HIRO + componenta noastră -->
+    <a-marker preset="hiro" scale="0.38 0.38 0.38" checkers-setup></a-marker>
 
     <!-- Camera -->
     <a-entity camera look-controls="enabled: false"></a-entity>
-
   </a-scene>
-
 </body>
 </html>
