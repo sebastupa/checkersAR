@@ -2,222 +2,105 @@
 <html lang="ro">
 <head>
   <meta charset="UTF-8" />
-  <title>AR Checkers - Joc Interactiv</title>
+  <title>AR Checkers - HIRO Marker</title>
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
 
+  <!-- A-Frame -->
   <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
-  <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
 
-  <style>
-    /* UI simplu pentru a arăta rândul cui este */
-    #ui-layer {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      color: white;
-      font-family: sans-serif;
-      font-size: 20px;
-      background: rgba(0, 0, 0, 0.5);
-      padding: 10px;
-      z-index: 10;
-    }
-  </style>
+  <!-- AR.js -->
+  <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
 </head>
 
 <body style="margin: 0; overflow: hidden;">
 
-  <div id="ui-layer">Rândul: <span id="turn-text" style="color: red;">ROȘU</span></div>
+  <a-scene
+    embedded
+    vr-mode-ui="enabled: false"
+    arjs="
+      sourceType: webcam;
+      sourceWidth: 1280;
+      sourceHeight: 960;
+      displayWidth: 1280;
+      displayHeight: 960;
+    "
+  >
 
-  <a-scene embedded vr-mode-ui="enabled: false"
-    arjs="sourceType: webcam; debugUIEnabled: false;">
+    <!-- Marker HIRO -->
+    <a-marker preset="hiro" scale="0.7 0.7 0.7">
 
-    <a-marker preset="hiro" id="marker-root">
-      
-      <a-entity id="game-board" rotation="-90 0 0" scale="0.5 0.5 0.5"></a-entity>
+      <!-- TABLA 8x8 -->
+      <!-- Fundal -->
+      <a-plane
+        rotation="-90 0 0"
+        width="4"
+        height="4"
+        color="#d2b48c"
+      ></a-plane>
+
+      <!-- Pătrate -->
+      <!-- Dimensiune pătrat: 0.5 -->
+      <a-entity id="board">
+        <!-- Generat manual pentru claritate -->
+        <!-- rândurile 0–7, coloanele 0–7 -->
+        <!-- pătrate negre doar -->
+
+        <!-- RÂND 0 -->
+        <a-plane position="-1.75 0.01 -1.75" rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
+        <a-plane position="-0.75 0.01 -1.75" rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
+        <a-plane position="0.25 0.01 -1.75"  rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
+        <a-plane position="1.25 0.01 -1.75"  rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
+
+        <!-- RÂND 1 -->
+        <a-plane position="-1.25 0.01 -1.25" rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
+        <a-plane position="-0.25 0.01 -1.25" rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
+        <a-plane position="0.75 0.01 -1.25"  rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
+        <a-plane position="1.75 0.01 -1.25"  rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
+
+        <!-- RÂND 2 -->
+        <a-plane position="-1.75 0.01 -0.75" rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
+        <a-plane position="-0.75 0.01 -0.75" rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
+        <a-plane position="0.25 0.01 -0.75"  rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
+        <a-plane position="1.25 0.01 -0.75"  rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
+
+        <!-- RÂND 5 -->
+        <a-plane position="-1.25 0.01 0.75" rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
+        <a-plane position="-0.25 0.01 0.75" rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
+        <a-plane position="0.75 0.01 0.75"  rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
+        <a-plane position="1.75 0.01 0.75"  rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
+
+        <!-- RÂND 6 -->
+        <a-plane position="-1.75 0.01 1.25" rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
+        <a-plane position="-0.75 0.01 1.25" rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
+        <a-plane position="0.25 0.01 1.25"  rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
+        <a-plane position="1.25 0.01 1.25"  rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
+
+        <!-- RÂND 7 -->
+        <a-plane position="-1.25 0.01 1.75" rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
+        <a-plane position="-0.25 0.01 1.75" rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
+        <a-plane position="0.75 0.01 1.75"  rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
+        <a-plane position="1.75 0.01 1.75"  rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
+      </a-entity>
+
+      <!-- PIESE ALBE (sus) -->
+      <a-cylinder position="-1.75 0.1 -1.75" radius="0.18" height="0.1" color="white"></a-cylinder>
+      <a-cylinder position="-0.75 0.1 -1.75" radius="0.18" height="0.1" color="white"></a-cylinder>
+      <a-cylinder position="0.25 0.1 -1.75"  radius="0.18" height="0.1" color="white"></a-cylinder>
+      <a-cylinder position="1.25 0.1 -1.75"  radius="0.18" height="0.1" color="white"></a-cylinder>
+
+      <!-- PIESE NEGRE (jos) -->
+      <a-cylinder position="-1.25 0.1 1.75" radius="0.18" height="0.1" color="black"></a-cylinder>
+      <a-cylinder position="-0.25 0.1 1.75" radius="0.18" height="0.1" color="black"></a-cylinder>
+      <a-cylinder position="0.75 0.1 1.75"  radius="0.18" height="0.1" color="black"></a-cylinder>
+      <a-cylinder position="1.75 0.1 1.75"  radius="0.18" height="0.1" color="black"></a-cylinder>
 
     </a-marker>
 
-    <a-entity camera position="0 0 0" look-controls="enabled: false">
-      <a-entity cursor="rayOrigin: mouse"
-                raycaster="objects: .clickable"
-                position="0 0 -1">
-      </a-entity>
-    </a-entity>
+    <!-- Camera -->
+    <a-entity camera look-controls="enabled: false"></a-entity>
 
   </a-scene>
 
-  <script>
-    // --- CONFIGURARE ---
-    const boardSize = 8;
-    const tileSize = 1; 
-    // Offset pentru a centra tabla (8 unități / 2 = 4)
-    const offset = (boardSize * tileSize) / 2 - (tileSize / 2);
-    
-    let turn = 'red'; // 'red' (jos) sau 'white' (sus)
-    let selectedPiece = null; // Piesa selectată curent
-    
-    const boardEl = document.querySelector('#game-board');
-    const turnText = document.querySelector('#turn-text');
-
-    // --- GENERARE TABLĂ ---
-    function initGame() {
-      // 1. Generăm pătratele
-      for (let z = 0; z < boardSize; z++) { // Rânduri
-        for (let x = 0; x < boardSize; x++) { // Coloane
-          
-          const isDark = (x + z) % 2 !== 0;
-          
-          // Creăm pătratul
-          const tile = document.createElement('a-box');
-          tile.setAttribute('position', `${x - offset} 0 ${z - offset}`);
-          tile.setAttribute('width', tileSize);
-          tile.setAttribute('height', tileSize);
-          tile.setAttribute('depth', 0.1); // Grosimea tablei
-          tile.setAttribute('color', isDark ? '#444' : '#CCC'); // Culori tablă
-          tile.setAttribute('class', isDark ? 'clickable tile' : 'tile'); // Doar cele negre sunt clickable
-          
-          // Salvăm coordonatele logice în element
-          tile.dataset.x = x;
-          tile.dataset.z = z;
-          tile.dataset.occupied = "false"; // Stare
-          
-          // Event listener pentru mutare
-          if (isDark) {
-            tile.addEventListener('click', onTileClick);
-          }
-
-          boardEl.appendChild(tile);
-
-          // 2. Generăm piesele (doar pe pătratele negre)
-          if (isDark) {
-            if (z < 3) createPiece(x, z, 'white'); // Piesele albe sus
-            if (z > 4) createPiece(x, z, 'red');   // Piesele roșii jos
-          }
-        }
-      }
-    }
-
-    // --- CREARE PIESĂ ---
-    function createPiece(x, z, color) {
-      const piece = document.createElement('a-cylinder');
-      
-      // Poziționare: X, Y (înălțime), Z. Y este puțin deasupra tablei (0.1 grosime tablă / 2 + înălțime piesă / 2)
-      piece.setAttribute('position', `${x - offset} 0.2 ${z - offset}`);
-      piece.setAttribute('radius', 0.35);
-      piece.setAttribute('height', 0.2);
-      piece.setAttribute('rotation', '90 0 0'); // Cilindrul stă culcat implicit, îl rotim să stea în picioare
-      piece.setAttribute('color', color === 'red' ? '#D32F2F' : '#F5F5F5');
-      piece.setAttribute('class', 'clickable piece');
-      
-      // Date logice
-      piece.dataset.color = color;
-      piece.dataset.x = x;
-      piece.dataset.z = z;
-
-      // Event click piesă
-      piece.addEventListener('click', onPieceClick);
-      
-      boardEl.appendChild(piece);
-      
-      // Marcam pătratul ca ocupat
-      const tile = getTileAt(x, z);
-      if(tile) tile.dataset.occupied = "true";
-    }
-
-    // --- LOGICA JOCULUI ---
-
-    // Găsește elementul pătrat la coordonatele X, Z
-    function getTileAt(x, z) {
-      // Selector complex pentru a găsi tile-ul specific
-      return document.querySelector(`.tile[data-x="${x}"][data-z="${z}"]`);
-    }
-
-    function onPieceClick(evt) {
-      const piece = evt.target;
-      const pieceColor = piece.dataset.color;
-
-      // Verificăm dacă e rândul jucătorului
-      if (pieceColor !== turn) return;
-
-      // Deselectare anterioară (resetare culoare)
-      if (selectedPiece) {
-        selectedPiece.setAttribute('material', 'opacity', 1.0);
-        selectedPiece.setAttribute('color', selectedPiece.dataset.color === 'red' ? '#D32F2F' : '#F5F5F5');
-      }
-
-      // Selectare nouă
-      selectedPiece = piece;
-      // Highlight vizual (transparență sau schimbare culoare temporară)
-      selectedPiece.setAttribute('material', 'opacity', 0.5); 
-      selectedPiece.setAttribute('color', '#FFFF00'); // Galben la selectare
-    }
-
-    function onTileClick(evt) {
-      if (!selectedPiece) return;
-
-      const tile = evt.target;
-      
-      // Nu putem muta pe un pătrat ocupat
-      if (tile.dataset.occupied === "true") return;
-
-      const targetX = parseInt(tile.dataset.x);
-      const targetZ = parseInt(tile.dataset.z);
-      const currentX = parseInt(selectedPiece.dataset.x);
-      const currentZ = parseInt(selectedPiece.dataset.z);
-
-      // --- VALIDARE SIMPLĂ A MUTĂRII (Fără sărituri peste piese momentan) ---
-      // Piesa roșie merge "în sus" (Z scade), piesa albă merge "în jos" (Z crește)
-      // Diferența pe Z trebuie să fie 1 (mutare simplă)
-      // Diferența pe X trebuie să fie 1 (diagonală)
-      
-      const direction = (turn === 'red') ? -1 : 1;
-      const validZ = (targetZ - currentZ === direction);
-      const validX = (Math.abs(targetX - currentX) === 1);
-
-      if (validZ && validX) {
-        movePiece(selectedPiece, targetX, targetZ);
-      } else {
-        console.log("Mutare invalidă!");
-      }
-    }
-
-    function movePiece(piece, newX, newZ) {
-      // 1. Eliberăm pătratul vechi
-      const oldX = piece.dataset.x;
-      const oldZ = piece.dataset.z;
-      const oldTile = getTileAt(oldX, oldZ);
-      if(oldTile) oldTile.dataset.occupied = "false";
-
-      // 2. Actualizăm poziția vizuală
-      piece.setAttribute('animation', {
-        property: 'position',
-        to: `${newX - offset} 0.2 ${newZ - offset}`,
-        dur: 300,
-        easing: 'easeOutQuad'
-      });
-
-      // 3. Actualizăm datele piesei
-      piece.dataset.x = newX;
-      piece.dataset.z = newZ;
-
-      // 4. Ocupăm noul pătrat
-      const newTile = getTileAt(newX, newZ);
-      if(newTile) newTile.dataset.occupied = "true";
-
-      // 5. Resetăm selecția vizuală
-      piece.setAttribute('material', 'opacity', 1.0);
-      piece.setAttribute('color', turn === 'red' ? '#D32F2F' : '#F5F5F5');
-      selectedPiece = null;
-
-      // 6. Schimbăm tura
-      turn = (turn === 'red') ? 'white' : 'red';
-      turnText.innerText = (turn === 'red') ? "ROȘU" : "ALB";
-      turnText.style.color = (turn === 'red') ? "red" : "white";
-    }
-
-    // Pornim jocul
-    initGame();
-
-  </script>
 </body>
 </html>
