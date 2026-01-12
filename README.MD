@@ -24,7 +24,7 @@ https://sebastupa.github.io/checkersAR/
 3. Scanează markerul **HIRO** (printat sau afișat pe un ecran).
 4. Tabla de dame și piesele vor apărea în mediul real.
 Marker HIRO:
-https://raw.githubusercontent.com/AR-js-org/AR.js/master/data/images/HIRO.png
+https://upload.wikimedia.org/wikipedia/commons/4/48/Hiro_marker_ARjs.png
 
 ---
 
@@ -53,3 +53,4 @@ https://raw.githubusercontent.com/AR-js-org/AR.js/master/data/images/HIRO.png
 - Captura este obligatorie dacă există o mutare de captură
 - După o captură, dacă este posibilă o nouă captură, jucătorul continuă
 - Nu sunt implementate piese de tip „damă” (king)
+
