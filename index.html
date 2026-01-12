@@ -3,145 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <title>AR Checkers - HIRO Marker</title>
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
 
-  <!-- A-Frame -->
   <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
-  <!-- AR.js -->
   <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
-
-  <script>
-    // Componentă care:
-    // 1) desenează tabla 8x8 într-un canvas (1 singură textură -> fără z-fighting)
-    // 2) generează piesele inițiale 12+12
-    AFRAME.registerComponent('checkers-setup', {
-      init: function () {
-        const markerEl = this.el;
-
-        // --- Config board ---
-        const boardSize = 4.0;           // dimensiunea totală (width/depth)
-        const squares = 8;               // 8x8
-        const squareSize = boardSize / squares; // 0.5
-        const boardThickness = 0.35;
-
-        // tabla e centrată la (0, -0.22, 0)
-        const boardCenterY = -0.22;
-        const boardTopY = boardCenterY + boardThickness / 2; // top-ul plăcii
-
-        // --- Creează baza tablei (solid) ---
-        const base = document.createElement('a-box');
-        base.setAttribute('position', `0 ${boardCenterY} 0`);
-        base.setAttribute('width', boardSize);
-        base.setAttribute('height', boardThickness);
-        base.setAttribute('depth', boardSize);
-        base.setAttribute('color', '#e8d5a8');
-        markerEl.appendChild(base);
-
-        // --- Creează textura 8x8 într-un canvas ---
-        const canvas = document.createElement('canvas');
-        canvas.width = 1024;
-        canvas.height = 1024;
-        const ctx = canvas.getContext('2d');
-
-        const light = '#f2e3bf';
-        const dark  = '#8b5a2b';
-
-        // fundal
-        ctx.fillStyle = light;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        // pătrate
-        const cell = canvas.width / squares;
-        for (let r = 0; r < squares; r++) {
-          for (let c = 0; c < squares; c++) {
-            // în dame, pătratele închise sunt cele (r+c) % 2 == 1 (depinde convenție)
-            if ((r + c) % 2 === 1) {
-              ctx.fillStyle = dark;
-              ctx.fillRect(c * cell, r * cell, cell, cell);
-            }
-          }
-        }
-
-        // opțional: margine discretă
-        ctx.strokeStyle = 'rgba(0,0,0,0.15)';
-        ctx.lineWidth = 10;
-        ctx.strokeRect(5, 5, canvas.width - 10, canvas.height - 10);
-
-        // --- Material A-Frame din canvas ---
-        const top = document.createElement('a-plane');
-        // plane-ul e pe suprafața tablei, puțin ridicat ca să nu se „bată” cu baza
-        const topY = boardTopY + 0.001;
-        top.setAttribute('position', `0 ${topY} 0`);
-        top.setAttribute('rotation', '-90 0 0');
-        top.setAttribute('width', boardSize);
-        top.setAttribute('height', boardSize);
-        top.setAttribute('material', `src: ${canvasToDataURL(canvas)}; roughness: 1; metalness: 0;`);
-        markerEl.appendChild(top);
-
-        // --- Generează piesele ---
-        // Convenție coordonate:
-        // x: -boardSize/2 + squareSize/2 + c*squareSize
-        // z: -boardSize/2 + squareSize/2 + r*squareSize
-        function cellCenter(c, r) {
-          const x = -boardSize / 2 + squareSize / 2 + c * squareSize;
-          const z = -boardSize / 2 + squareSize / 2 + r * squareSize;
-          return { x, z };
-        }
-
-        // piesă (cilindru)
-        const pieceRadius = 0.14;
-        const pieceHeight = 0.07;
-        // stă pe top plane:
-        const pieceY = topY + pieceHeight / 2; // plane e subțire, e ok
-
-        function addPiece(c, r, color, id) {
-          const { x, z } = cellCenter(c, r);
-          const p = document.createElement('a-cylinder');
-          p.setAttribute('id', id);
-          p.setAttribute('position', `${x} ${pieceY} ${z}`);
-          p.setAttribute('radius', pieceRadius);
-          p.setAttribute('height', pieceHeight);
-          p.setAttribute('color', color);
-          // ca să fie ușor de selectat mai târziu
-          p.setAttribute('class', 'piece');
-          p.setAttribute('data-col', c);
-          p.setAttribute('data-row', r);
-          markerEl.appendChild(p);
-        }
-
-        // Reguli inițiale (dame standard):
-        // - O culoare ocupă rândurile 0,1,2 pe pătratele închise
-        // - Cealaltă ocupă rândurile 5,6,7 pe pătratele închise
-        // Alegem:
-        //  - alb sus (rânduri 0..2)
-        //  - negru jos (rânduri 5..7)
-        let whiteCount = 0, blackCount = 0;
-
-        for (let r = 0; r <= 2; r++) {
-          for (let c = 0; c < squares; c++) {
-            if ((r + c) % 2 === 1) {
-              whiteCount++;
-              addPiece(c, r, '#f5f5f5', `w${whiteCount}`);
-            }
-          }
-        }
-
-        for (let r = 5; r <= 7; r++) {
-          for (let c = 0; c < squares; c++) {
-            if ((r + c) % 2 === 1) {
-              blackCount++;
-              addPiece(c, r, '#111', `b${blackCount}`);
-            }
-          }
-        }
-
-        // --- Helper: transform canvas to dataURL (no extra file needed) ---
-        function canvasToDataURL(cv) {
-          return cv.toDataURL('image/png');
-        }
-      }
-    });
-  </script>
 </head>
 
 <body style="margin: 0; overflow: hidden;">
@@ -156,11 +22,98 @@
       displayHeight: 960;
     "
   >
-    <!-- Marker HIRO + componenta noastră -->
-    <a-marker preset="hiro" scale="0.38 0.38 0.38" checkers-setup></a-marker>
+    <a-marker preset="hiro" scale="0.38 0.38 0.38">
 
-    <!-- Camera -->
+      <!-- Baza tablei: neutru (nu aceeași cu pătratele) -->
+      <!-- Top: yTop = -0.22 + 0.35/2 = -0.045 -->
+      <a-box
+        position="0 -0.22 0"
+        width="4"
+        height="0.35"
+        depth="4"
+        color="#c9b28a"
+      ></a-box>
+
+      <a-entity id="board-squares"></a-entity>
+      <a-entity id="pieces"></a-entity>
+
+    </a-marker>
+
     <a-entity camera look-controls="enabled: false"></a-entity>
   </a-scene>
+
+  <script>
+    const N = 8;
+    const BOARD_SIZE = 4;
+    const CELL = BOARD_SIZE / N; // 0.5
+    const HALF = BOARD_SIZE / 2; // 2
+
+    const boardY = -0.22;
+    const boardH = 0.35;
+    const yTop = boardY + boardH / 2; // -0.045
+
+    // pătratele ca plăcuțe
+    const squareH = 0.03; // puțin mai groase
+    const squareY = yTop + squareH / 2 + 0.01; // mai sus => vizibil sigur
+
+    // CONTRAST MARE (ca să se vadă pe orice cameră)
+    const lightColor = "#fff4d6";
+    const darkColor  = "#6b3f1d";
+
+    const boardEl = document.getElementById("board-squares");
+    const piecesEl = document.getElementById("pieces");
+
+    function cellToWorld(row, col) {
+      const x = -HALF + CELL / 2 + col * CELL;
+      const z = -HALF + CELL / 2 + row * CELL;
+      return { x, z };
+    }
+
+    function addSquare(row, col, color) {
+      const { x, z } = cellToWorld(row, col);
+      const sq = document.createElement("a-box");
+      sq.setAttribute("position", `${x} ${squareY} ${z}`);
+      sq.setAttribute("width", CELL);
+      sq.setAttribute("height", squareH);
+      sq.setAttribute("depth", CELL);
+      sq.setAttribute("color", color);
+      boardEl.appendChild(sq);
+    }
+
+    // 8x8 complet, alternanță corectă
+    for (let r = 0; r < N; r++) {
+      for (let c = 0; c < N; c++) {
+        const isDark = (r + c) % 2 === 1;
+        addSquare(r, c, isDark ? darkColor : lightColor);
+      }
+    }
+
+    // Piese
+    const pieceH = 0.07;
+    const pieceR = 0.14;
+    const pieceY = squareY + squareH / 2 + pieceH / 2 + 0.002;
+
+    function addPiece(row, col, color) {
+      const { x, z } = cellToWorld(row, col);
+      const p = document.createElement("a-cylinder");
+      p.setAttribute("position", `${x} ${pieceY} ${z}`);
+      p.setAttribute("radius", pieceR);
+      p.setAttribute("height", pieceH);
+      p.setAttribute("color", color);
+      piecesEl.appendChild(p);
+    }
+
+    // Setare inițială (12+12) pe pătratele închise
+    for (let r = 0; r <= 2; r++) {
+      for (let c = 0; c < N; c++) {
+        if ((r + c) % 2 === 1) addPiece(r, c, "#f5f5f5");
+      }
+    }
+    for (let r = 5; r <= 7; r++) {
+      for (let c = 0; c < N; c++) {
+        if ((r + c) % 2 === 1) addPiece(r, c, "#111");
+      }
+    }
+  </script>
 </body>
 </html>
