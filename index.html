@@ -27,65 +27,53 @@
     "
   >
 
-    <!-- Marker HIRO (joc mai mic) -->
-    <a-marker preset="hiro" scale="0.55 0.55 0.55">
+    <!-- Marker HIRO – ansamblu mai mic -->
+    <a-marker preset="hiro" scale="0.45 0.45 0.45">
 
-      <!-- TABLA (groasă) -->
+      <!-- TABLA (mai groasă, mai solidă) -->
       <a-box
-        position="0 -0.1 0"
-        rotation="0 0 0"
+        position="0 -0.15 0"
         width="4"
-        height="0.2"
+        height="0.3"
         depth="4"
-        color="#d2b48c"
+        color="#e6cfa3"
+        shadow
       ></a-box>
 
-      <!-- PĂTRATE NEGRE -->
+      <!-- PĂTRATE NEGRE (ușor „îngropate”) -->
       <!-- dimensiune pătrat: 0.5 -->
-      <!-- ridicate puțin peste tablă -->
+      <!-- y = -0.01 pentru realism -->
 
       <!-- RÂND 0 -->
-      <a-plane position="-1.75 0.01 -1.75" rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
-      <a-plane position="-0.75 0.01 -1.75" rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
-      <a-plane position="0.25 0.01 -1.75"  rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
-      <a-plane position="1.25 0.01 -1.75"  rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
+      <a-plane position="-1.75 -0.01 -1.75" rotation="-90 0 0" width="0.5" height="0.5" color="#8b5a2b"></a-plane>
+      <a-plane position="-0.75 -0.01 -1.75" rotation="-90 0 0" width="0.5" height="0.5" color="#8b5a2b"></a-plane>
+      <a-plane position="0.25  -0.01 -1.75" rotation="-90 0 0" width="0.5" height="0.5" color="#8b5a2b"></a-plane>
+      <a-plane position="1.25  -0.01 -1.75" rotation="-90 0 0" width="0.5" height="0.5" color="#8b5a2b"></a-plane>
 
       <!-- RÂND 1 -->
-      <a-plane position="-1.25 0.01 -1.25" rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
-      <a-plane position="-0.25 0.01 -1.25" rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
-      <a-plane position="0.75 0.01 -1.25"  rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
-      <a-plane position="1.75 0.01 -1.25"  rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
-
-      <!-- RÂND 2 -->
-      <a-plane position="-1.75 0.01 -0.75" rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
-      <a-plane position="-0.75 0.01 -0.75" rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
-      <a-plane position="0.25 0.01 -0.75"  rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
-      <a-plane position="1.25 0.01 -0.75"  rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
-
-      <!-- RÂND 5 -->
-      <a-plane position="-1.25 0.01 0.75" rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
-      <a-plane position="-0.25 0.01 0.75" rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
-      <a-plane position="0.75 0.01 0.75"  rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
-      <a-plane position="1.75 0.01 0.75"  rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
+      <a-plane position="-1.25 -0.01 -1.25" rotation="-90 0 0" width="0.5" height="0.5" color="#8b5a2b"></a-plane>
+      <a-plane position="-0.25 -0.01 -1.25" rotation="-90 0 0" width="0.5" height="0.5" color="#8b5a2b"></a-plane>
+      <a-plane position="0.75  -0.01 -1.25" rotation="-90 0 0" width="0.5" height="0.5" color="#8b5a2b"></a-plane>
+      <a-plane position="1.75  -0.01 -1.25" rotation="-90 0 0" width="0.5" height="0.5" color="#8b5a2b"></a-plane>
 
       <!-- RÂND 6 -->
-      <a-plane position="-1.75 0.01 1.25" rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
-      <a-plane position="-0.75 0.01 1.25" rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
-      <a-plane position="0.25 0.01 1.25"  rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
-      <a-plane position="1.25 0.01 1.25"  rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
+      <a-plane position="-1.75 -0.01 1.25" rotation="-90 0 0" width="0.5" height="0.5" color="#8b5a2b"></a-plane>
+      <a-plane position="-0.75 -0.01 1.25" rotation="-90 0 0" width="0.5" height="0.5" color="#8b5a2b"></a-plane>
+      <a-plane position="0.25  -0.01 1.25" rotation="-90 0 0" width="0.5" height="0.5" color="#8b5a2b"></a-plane>
+      <a-plane position="1.25  -0.01 1.25" rotation="-90 0 0" width="0.5" height="0.5" color="#8b5a2b"></a-plane>
 
       <!-- RÂND 7 -->
-      <a-plane position="-1.25 0.01 1.75" rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
-      <a-plane position="-0.25 0.01 1.75" rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
-      <a-plane position="0.75 0.01 1.75"  rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
-      <a-plane position="1.75 0.01 1.75"  rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
+      <a-plane position="-1.25 -0.01 1.75" rotation="-90 0 0" width="0.5" height="0.5" color="#8b5a2b"></a-plane>
+      <a-plane position="-0.25 -0.01 1.75" rotation="-90 0 0" width="0.5" height="0.5" color="#8b5a2b"></a-plane>
+      <a-plane position="0.75  -0.01 1.75" rotation="-90 0 0" width="0.5" height="0.5" color="#8b5a2b"></a-plane>
+      <a-plane position="1.75  -0.01 1.75" rotation="-90 0 0" width="0.5" height="0.5" color="#8b5a2b"></a-plane>
 
-      <!-- PIESE -->
-      <a-cylinder position="-1.75 0.15 -1.75" radius="0.16" height="0.1" color="white"></a-cylinder>
-      <a-cylinder position="1.25 0.15 -1.75"  radius="0.16" height="0.1" color="white"></a-cylinder>
+      <!-- PIESE (ușor mai jos) -->
+      <a-cylinder position="-1.75 0.05 -1.75" radius="0.15" height="0.08" color="#f5f5f5"></a-cylinder>
+      <a-cylinder position="1.25  0.05 -1.75" radius="0.15" height="0.08" color="#f5f5f5"></a-cylinder>
 
-      <a-cylinder position="-1.25 0.15 1.75" radius="0.16" height="0.1" color="black"></a-cylinder>
-      <a-cylinder position="0.75 0.15 1.75"  radius="0.16" height="0.1" color="black"></a-cylinder>
+      <a-cylinder position="-1.25 0.05 1.75" radius="0.15" height="0.08" color="#111"></a-cylinder>
+      <a-cylinder position="0.75  0.05 1.75" radius="0.15" height="0.08" color="#111"></a-cylinder>
 
     </a-marker>
 
