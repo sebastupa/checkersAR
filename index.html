@@ -7,9 +7,141 @@
 
   <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
   <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+
+  <style>
+    /* Overlay UI (mereu deasupra camerei) */
+    .ui {
+      position: fixed;
+      left: 12px;
+      right: 12px;
+      top: 12px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      z-index: 9999;
+      pointer-events: none; /* lăsăm camera/tap-urile să treacă, exceptând butoanele */
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    }
+
+    .pill {
+      pointer-events: auto;
+      background: rgba(0,0,0,0.55);
+      color: #fff;
+      padding: 10px 12px;
+      border-radius: 14px;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      font-size: 14px;
+      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn {
+      pointer-events: auto;
+      border: none;
+      border-radius: 14px;
+      padding: 10px 12px;
+      background: rgba(255,255,255,0.85);
+      color: #111;
+      font-weight: 600;
+      cursor: pointer;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+    }
+
+    .btn:active { transform: scale(0.98); }
+
+    /* Panel INFO */
+    .panel {
+      position: fixed;
+      left: 12px;
+      right: 12px;
+      top: 64px;
+      max-height: 70vh;
+      overflow: auto;
+      z-index: 9999;
+      background: rgba(0,0,0,0.72);
+      color: #fff;
+      padding: 14px 14px 12px;
+      border-radius: 16px;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: none;
+      pointer-events: auto;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    }
+
+    .panel h2 {
+      margin: 0 0 8px;
+      font-size: 16px;
+    }
+    .panel p, .panel li {
+      font-size: 14px;
+      line-height: 1.35;
+      margin: 0;
+    }
+    .panel ul {
+      margin: 8px 0 0 18px;
+      padding: 0;
+    }
+
+    .panel .row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .panel .close {
+      border: none;
+      border-radius: 12px;
+      padding: 8px 10px;
+      background: rgba(255,255,255,0.9);
+      color: #111;
+      font-weight: 700;
+      cursor: pointer;
+    }
+  </style>
 </head>
 
 <body style="margin: 0; overflow: hidden;">
+
+  <!-- Overlay UI -->
+  <div class="ui">
+    <div class="pill">
+      <span>🎯 Tura:</span>
+      <strong id="turnOverlay">ALB</strong>
+    </div>
+    <button id="infoBtn" class="btn">ℹ️ Info</button>
+  </div>
+
+  <!-- Info Panel -->
+  <div id="infoPanel" class="panel" aria-hidden="true">
+    <div class="row">
+      <h2>AR Dame — Info & Reguli</h2>
+      <button id="closeInfo" class="close">✕</button>
+    </div>
+
+    <p><strong>Control:</strong> tap pe o piesă (doar culoarea turei), apoi tap pe un pătrat evidențiat.</p>
+    <ul>
+      <li><strong>Verde</strong> = mutare simplă (diagonală, 1 pătrat).</li>
+      <li><strong>Galben</strong> = captură (sari peste piesa adversă).</li>
+      <li><strong>Albastru</strong> = piesa selectată.</li>
+    </ul>
+
+    <br />
+    <p><strong>Reguli implementate (de bază):</strong></p>
+    <ul>
+      <li>Piesele se mișcă doar înainte (ALB în jos, NEGRU în sus).</li>
+      <li>Dacă există cel puțin o captură posibilă pentru jucătorul curent, <strong>captura este obligatorie</strong>.</li>
+      <li>După o captură, dacă aceeași piesă mai poate captura, se continuă (multi-captură).</li>
+      <li><em>Nu sunt implementate regi/kings</em> (variantă simplificată).</li>
+    </ul>
+  </div>
+
   <a-scene
     embedded
     vr-mode-ui="enabled: false"
@@ -42,7 +174,7 @@
         color="#e6d3a3"
       ></a-box>
 
-      <!-- HUD -->
+      <!-- Text în scenă (opțional, dar util în demo) -->
       <a-entity id="hud" position="0 0.6 0">
         <a-text id="turnText" value="Tura: ALB" align="center" color="#111" width="3"></a-text>
       </a-entity>
@@ -60,32 +192,55 @@
 
   <script>
     // =========================
-    // Config
+    // Overlay INFO logic
+    // =========================
+    const infoBtn = document.getElementById("infoBtn");
+    const infoPanel = document.getElementById("infoPanel");
+    const closeInfo = document.getElementById("closeInfo");
+
+    function openInfo() {
+      infoPanel.style.display = "block";
+      infoPanel.setAttribute("aria-hidden", "false");
+    }
+    function closeInfoPanel() {
+      infoPanel.style.display = "none";
+      infoPanel.setAttribute("aria-hidden", "true");
+    }
+
+    infoBtn.addEventListener("click", (e) => { e.preventDefault(); openInfo(); });
+    closeInfo.addEventListener("click", (e) => { e.preventDefault(); closeInfoPanel(); });
+
+    // închidere dacă apeși în afara panelului (dar nu peste butoane)
+    document.addEventListener("click", (e) => {
+      if (infoPanel.style.display !== "block") return;
+      const isInside = infoPanel.contains(e.target) || infoBtn.contains(e.target);
+      if (!isInside) closeInfoPanel();
+    });
+
+    // =========================
+    // Config joc
     // =========================
     const N = 8;
     const BOARD_SIZE = 4;
-    const CELL = BOARD_SIZE / N; // 0.5
-    const HALF = BOARD_SIZE / 2; // 2
+    const CELL = BOARD_SIZE / N;
+    const HALF = BOARD_SIZE / 2;
 
-    // Placa interioară
     const boardY = -0.12;
     const boardH = 0.16;
     const yTop = boardY + boardH / 2;
 
-    // Pătrățele: MAI GROASE + MAI SUS + puțin mai mici (anti-artefacte)
+    // anti-artefacte
     const squareH = 0.08;
-    const gap = 0.06;                 // mai mult spațiu => mai puțin z-fighting
+    const gap = 0.06;
     const squareY = yTop + gap + squareH / 2;
-    const squareSize = CELL * 0.96;   // puțin mai mic decât celula
+    const squareSize = CELL * 0.96;
 
-    // Culori
     const lightColor = "#fff2cf";
     const darkColor  = "#6b3f1d";
     const highlightMove = "#3ddc84";
     const highlightCapture = "#ffcc00";
     const highlightSelected = "#4da3ff";
 
-    // Piese
     const pieceH = 0.07;
     const pieceR = 0.14;
     const pieceY = squareY + squareH / 2 + pieceH / 2 + 0.01;
@@ -93,22 +248,17 @@
     const boardEl = document.getElementById("board-squares");
     const piecesEl = document.getElementById("pieces");
     const turnText = document.getElementById("turnText");
+    const turnOverlay = document.getElementById("turnOverlay");
 
-    // =========================
-    // Stare joc
-    // =========================
-    const board = Array.from({ length: N }, () => Array(N).fill(null)); // null | 'w' | 'b'
-    const squareMap = new Map(); // "r,c" -> squareEl
-    const pieceMap = new Map();  // "r,c" -> pieceEl
+    const board = Array.from({ length: N }, () => Array(N).fill(null));
+    const squareMap = new Map();
+    const pieceMap = new Map();
 
     let turn = 'w';
-    let selected = null; // { r, c, el }
-    let possibleMoves = new Map(); // "r,c" -> moveObj
+    let selected = null;
+    let possibleMoves = new Map();
     let mustContinueCapture = false;
 
-    // =========================
-    // Helpers
-    // =========================
     const key = (r,c) => `${r},${c}`;
     const inBounds = (r,c) => r >= 0 && r < N && c >= 0 && c < N;
 
@@ -119,7 +269,9 @@
     }
 
     function setTurnText() {
-      turnText.setAttribute("value", `Tura: ${turn === 'w' ? 'ALB' : 'NEGRU'}`);
+      const label = (turn === 'w') ? "ALB" : "NEGRU";
+      turnText.setAttribute("value", `Tura: ${label}`);
+      turnOverlay.textContent = label;
     }
 
     function clearHighlights() {
@@ -140,7 +292,7 @@
     }
 
     function setPieceSelectedVisual(pieceEl, isSelected) {
-      const base = pieceEl.getAttribute("data-color"); // 'w' | 'b'
+      const base = pieceEl.getAttribute("data-color");
       if (isSelected) {
         pieceEl.setAttribute("color", base === 'w' ? "#dbe8ff" : "#333");
       } else {
@@ -192,7 +344,7 @@
     }
 
     // =========================
-    // Handlers GENERICE (nu mai dispar piesele)
+    // Click handlers (generic)
     // =========================
     function onPieceClick(evt) {
       const el = evt.target;
@@ -209,7 +361,7 @@
     }
 
     // =========================
-    // Construire tablă + piese
+    // Build board + pieces
     // =========================
     function addSquare(row, col) {
       const { x, z } = cellToWorld(row, col);
@@ -261,7 +413,7 @@
     setTurnText();
 
     // =========================
-    // Selectare + highlight + mutare
+    // Gameplay
     // =========================
     function onPieceTap(r, c) {
       const colorChar = board[r][c];
@@ -274,7 +426,6 @@
       if (colorChar !== turn) return;
 
       const mustCapture = anyCaptureAvailable(turn);
-
       const pieceEl = pieceMap.get(key(r,c));
       if (!pieceEl) return;
 
@@ -334,21 +485,17 @@
 
       const colorChar = board[fromR][fromC];
 
-      // update board
       board[fromR][fromC] = null;
       board[move.toR][move.toC] = colorChar;
 
-      // update maps
       pieceMap.delete(key(fromR, fromC));
       pieceMap.set(key(move.toR, move.toC), pieceEl);
 
-      // move entity
       const { x, z } = cellToWorld(move.toR, move.toC);
       pieceEl.setAttribute("position", `${x} ${pieceY} ${z}`);
       pieceEl.setAttribute("data-row", move.toR);
       pieceEl.setAttribute("data-col", move.toC);
 
-      // capture
       if (move.capture) {
         const { r: capR, c: capC } = move.capture;
         const capEl = pieceMap.get(key(capR, capC));
