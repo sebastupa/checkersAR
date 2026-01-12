@@ -27,73 +27,65 @@
     "
   >
 
-    <!-- Marker HIRO -->
-    <a-marker preset="hiro" scale="0.7 0.7 0.7">
+    <!-- Marker HIRO (joc mai mic) -->
+    <a-marker preset="hiro" scale="0.55 0.55 0.55">
 
-      <!-- TABLA 8x8 -->
-      <!-- Fundal -->
-      <a-plane
-        rotation="-90 0 0"
+      <!-- TABLA (groasă) -->
+      <a-box
+        position="0 -0.1 0"
+        rotation="0 0 0"
         width="4"
-        height="4"
+        height="0.2"
+        depth="4"
         color="#d2b48c"
-      ></a-plane>
+      ></a-box>
 
-      <!-- Pătrate -->
-      <!-- Dimensiune pătrat: 0.5 -->
-      <a-entity id="board">
-        <!-- Generat manual pentru claritate -->
-        <!-- rândurile 0–7, coloanele 0–7 -->
-        <!-- pătrate negre doar -->
+      <!-- PĂTRATE NEGRE -->
+      <!-- dimensiune pătrat: 0.5 -->
+      <!-- ridicate puțin peste tablă -->
 
-        <!-- RÂND 0 -->
-        <a-plane position="-1.75 0.01 -1.75" rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
-        <a-plane position="-0.75 0.01 -1.75" rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
-        <a-plane position="0.25 0.01 -1.75"  rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
-        <a-plane position="1.25 0.01 -1.75"  rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
+      <!-- RÂND 0 -->
+      <a-plane position="-1.75 0.01 -1.75" rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
+      <a-plane position="-0.75 0.01 -1.75" rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
+      <a-plane position="0.25 0.01 -1.75"  rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
+      <a-plane position="1.25 0.01 -1.75"  rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
 
-        <!-- RÂND 1 -->
-        <a-plane position="-1.25 0.01 -1.25" rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
-        <a-plane position="-0.25 0.01 -1.25" rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
-        <a-plane position="0.75 0.01 -1.25"  rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
-        <a-plane position="1.75 0.01 -1.25"  rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
+      <!-- RÂND 1 -->
+      <a-plane position="-1.25 0.01 -1.25" rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
+      <a-plane position="-0.25 0.01 -1.25" rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
+      <a-plane position="0.75 0.01 -1.25"  rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
+      <a-plane position="1.75 0.01 -1.25"  rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
 
-        <!-- RÂND 2 -->
-        <a-plane position="-1.75 0.01 -0.75" rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
-        <a-plane position="-0.75 0.01 -0.75" rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
-        <a-plane position="0.25 0.01 -0.75"  rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
-        <a-plane position="1.25 0.01 -0.75"  rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
+      <!-- RÂND 2 -->
+      <a-plane position="-1.75 0.01 -0.75" rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
+      <a-plane position="-0.75 0.01 -0.75" rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
+      <a-plane position="0.25 0.01 -0.75"  rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
+      <a-plane position="1.25 0.01 -0.75"  rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
 
-        <!-- RÂND 5 -->
-        <a-plane position="-1.25 0.01 0.75" rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
-        <a-plane position="-0.25 0.01 0.75" rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
-        <a-plane position="0.75 0.01 0.75"  rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
-        <a-plane position="1.75 0.01 0.75"  rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
+      <!-- RÂND 5 -->
+      <a-plane position="-1.25 0.01 0.75" rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
+      <a-plane position="-0.25 0.01 0.75" rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
+      <a-plane position="0.75 0.01 0.75"  rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
+      <a-plane position="1.75 0.01 0.75"  rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
 
-        <!-- RÂND 6 -->
-        <a-plane position="-1.75 0.01 1.25" rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
-        <a-plane position="-0.75 0.01 1.25" rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
-        <a-plane position="0.25 0.01 1.25"  rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
-        <a-plane position="1.25 0.01 1.25"  rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
+      <!-- RÂND 6 -->
+      <a-plane position="-1.75 0.01 1.25" rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
+      <a-plane position="-0.75 0.01 1.25" rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
+      <a-plane position="0.25 0.01 1.25"  rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
+      <a-plane position="1.25 0.01 1.25"  rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
 
-        <!-- RÂND 7 -->
-        <a-plane position="-1.25 0.01 1.75" rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
-        <a-plane position="-0.25 0.01 1.75" rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
-        <a-plane position="0.75 0.01 1.75"  rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
-        <a-plane position="1.75 0.01 1.75"  rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
-      </a-entity>
+      <!-- RÂND 7 -->
+      <a-plane position="-1.25 0.01 1.75" rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
+      <a-plane position="-0.25 0.01 1.75" rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
+      <a-plane position="0.75 0.01 1.75"  rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
+      <a-plane position="1.75 0.01 1.75"  rotation="-90 0 0" width="0.5" height="0.5" color="#654321"></a-plane>
 
-      <!-- PIESE ALBE (sus) -->
-      <a-cylinder position="-1.75 0.1 -1.75" radius="0.18" height="0.1" color="white"></a-cylinder>
-      <a-cylinder position="-0.75 0.1 -1.75" radius="0.18" height="0.1" color="white"></a-cylinder>
-      <a-cylinder position="0.25 0.1 -1.75"  radius="0.18" height="0.1" color="white"></a-cylinder>
-      <a-cylinder position="1.25 0.1 -1.75"  radius="0.18" height="0.1" color="white"></a-cylinder>
+      <!-- PIESE -->
+      <a-cylinder position="-1.75 0.15 -1.75" radius="0.16" height="0.1" color="white"></a-cylinder>
+      <a-cylinder position="1.25 0.15 -1.75"  radius="0.16" height="0.1" color="white"></a-cylinder>
 
-      <!-- PIESE NEGRE (jos) -->
-      <a-cylinder position="-1.25 0.1 1.75" radius="0.18" height="0.1" color="black"></a-cylinder>
-      <a-cylinder position="-0.25 0.1 1.75" radius="0.18" height="0.1" color="black"></a-cylinder>
-      <a-cylinder position="0.75 0.1 1.75"  radius="0.18" height="0.1" color="black"></a-cylinder>
-      <a-cylinder position="1.75 0.1 1.75"  radius="0.18" height="0.1" color="black"></a-cylinder>
+      <a-cylinder position="-1.25 0.15 1.75" radius="0.16" height="0.1" color="black"></a-cylinder>
+      <a-cylinder position="0.75 0.15 1.75"  radius="0.16" height="0.1" color="black"></a-cylinder>
 
     </a-marker>
 
