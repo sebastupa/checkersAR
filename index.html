@@ -21,10 +21,11 @@
       displayWidth: 1280;
       displayHeight: 960;
     "
+    renderer="antialias: true; precision: high;"
   >
     <a-marker preset="hiro" scale="0.38 0.38 0.38">
 
-      <!-- MARGINEA TABLEI (mai mare + mai înaltă) -->
+      <!-- MARGINE (ramă) mai înaltă -->
       <a-box
         position="0 -0.12 0"
         width="4.3"
@@ -33,8 +34,7 @@
         color="#b08968"
       ></a-box>
 
-      <!-- PLACA INTERIOARĂ (suprafața de joc) -->
-      <!-- top = -0.12 + 0.16/2 = -0.04 -->
+      <!-- PLACA interioară (suprafața de joc) -->
       <a-box
         position="0 -0.12 0"
         width="4"
@@ -43,35 +43,80 @@
         color="#e6d3a3"
       ></a-box>
 
+      <!-- UI minimal în scenă -->
+      <a-entity id="hud" position="0 0.6 0">
+        <a-text id="turnText" value="Tura: ALB" align="center" color="#111" width="3"></a-text>
+      </a-entity>
+
       <a-entity id="board-squares"></a-entity>
       <a-entity id="pieces"></a-entity>
 
     </a-marker>
 
-    <a-entity camera look-controls="enabled: false"></a-entity>
+    <!-- Camera + cursor pentru tap -->
+    <a-entity camera look-controls="enabled: false">
+      <a-cursor
+        raycaster="objects: .clickable"
+        fuse="false"
+      ></a-cursor>
+    </a-entity>
   </a-scene>
 
   <script>
+    // =========================
+    // Config tablă / scene
+    // =========================
     const N = 8;
     const BOARD_SIZE = 4;
     const CELL = BOARD_SIZE / N; // 0.5
     const HALF = BOARD_SIZE / 2; // 2
 
-    // placa interioară
+    // Placa interioară
     const boardY = -0.12;
     const boardH = 0.16;
-    const yTop = boardY + boardH / 2; // -0.04
+    const yTop = boardY + boardH / 2; // top placa
 
-    // pătrățele (groase + ridicate)
+    // Pătrățele: groase + ridicate (fără artefacte)
     const squareH = 0.08;
     const gap = 0.03;
     const squareY = yTop + gap + squareH / 2;
 
+    // Culori
     const lightColor = "#fff2cf";
     const darkColor  = "#6b3f1d";
+    const highlightMove = "#3ddc84";
+    const highlightCapture = "#ffcc00";
+    const highlightSelected = "#4da3ff";
+
+    // Piese
+    const pieceH = 0.07;
+    const pieceR = 0.14;
+    const pieceY = squareY + squareH / 2 + pieceH / 2 + 0.005;
 
     const boardEl = document.getElementById("board-squares");
     const piecesEl = document.getElementById("pieces");
+    const turnText = document.getElementById("turnText");
+
+    // =========================
+    // Stare joc
+    // =========================
+    // board[r][c] = null | 'w' | 'b'
+    const board = Array.from({ length: N }, () => Array(N).fill(null));
+
+    // map pentru acces rapid la entități
+    const squareMap = new Map(); // key "r,c" -> squareEl
+    const pieceMap = new Map();  // key "r,c" -> pieceEl
+
+    let turn = 'w'; // w = alb, b = negru
+    let selected = null; // { r, c, el }
+    let possibleMoves = new Map(); // key "r,c" -> moveObj
+    let mustContinueCapture = false; // multi-captură cu aceeași piesă
+
+    // =========================
+    // Helpers
+    // =========================
+    const key = (r,c) => `${r},${c}`;
+    const inBounds = (r,c) => r >= 0 && r < N && c >= 0 && c < N;
 
     function cellToWorld(row, col) {
       const x = -HALF + CELL / 2 + col * CELL;
@@ -79,50 +124,284 @@
       return { x, z };
     }
 
-    function addSquare(row, col, color) {
+    function setTurnText() {
+      turnText.setAttribute("value", `Tura: ${turn === 'w' ? 'ALB' : 'NEGRU'}`);
+    }
+
+    function clearHighlights() {
+      // resetăm toate pătratele la culorile lor originale
+      for (let r = 0; r < N; r++) {
+        for (let c = 0; c < N; c++) {
+          const sq = squareMap.get(key(r,c));
+          if (!sq) continue;
+          const isDark = (r + c) % 2 === 1;
+          sq.setAttribute("color", isDark ? darkColor : lightColor);
+        }
+      }
+      possibleMoves.clear();
+    }
+
+    function highlightSquare(r, c, color) {
+      const sq = squareMap.get(key(r,c));
+      if (sq) sq.setAttribute("color", color);
+    }
+
+    function setPieceSelectedVisual(pieceEl, isSelected) {
+      // schimbăm puțin culoarea la selectare (fără materiale complicate)
+      const base = pieceEl.getAttribute("data-color"); // 'w' or 'b'
+      if (isSelected) {
+        pieceEl.setAttribute("color", base === 'w' ? "#dbe8ff" : "#333");
+      } else {
+        pieceEl.setAttribute("color", base === 'w' ? "#f5f5f5" : "#111");
+      }
+    }
+
+    // =========================
+    // Construire tablă + piese
+    // =========================
+    function addSquare(row, col) {
       const { x, z } = cellToWorld(row, col);
       const sq = document.createElement("a-box");
+      sq.classList.add("clickable");
+      sq.setAttribute("data-type", "square");
+      sq.setAttribute("data-row", row);
+      sq.setAttribute("data-col", col);
       sq.setAttribute("position", `${x} ${squareY} ${z}`);
       sq.setAttribute("width", CELL);
       sq.setAttribute("height", squareH);
       sq.setAttribute("depth", CELL);
-      sq.setAttribute("color", color);
+      sq.setAttribute("color", ((row + col) % 2 === 1) ? darkColor : lightColor);
+
+      // click pe pătrat
+      sq.addEventListener("click", () => onSquareTap(row, col));
+
       boardEl.appendChild(sq);
+      squareMap.set(key(row,col), sq);
     }
 
-    // generare tablă 8x8
-    for (let r = 0; r < N; r++) {
-      for (let c = 0; c < N; c++) {
-        const isDark = (r + c) % 2 === 1;
-        addSquare(r, c, isDark ? darkColor : lightColor);
-      }
-    }
-
-    // piese
-    const pieceH = 0.07;
-    const pieceR = 0.14;
-    const pieceY = squareY + squareH / 2 + pieceH / 2 + 0.005;
-
-    function addPiece(row, col, color) {
+    function addPiece(row, col, colorChar) {
       const { x, z } = cellToWorld(row, col);
       const p = document.createElement("a-cylinder");
+      p.classList.add("clickable");
+      p.setAttribute("data-type", "piece");
+      p.setAttribute("data-row", row);
+      p.setAttribute("data-col", col);
+      p.setAttribute("data-color", colorChar);
+
       p.setAttribute("position", `${x} ${pieceY} ${z}`);
       p.setAttribute("radius", pieceR);
       p.setAttribute("height", pieceH);
-      p.setAttribute("color", color);
+      p.setAttribute("color", colorChar === 'w' ? "#f5f5f5" : "#111");
+
+      // click pe piesă
+      p.addEventListener("click", () => onPieceTap(row, col));
+
       piecesEl.appendChild(p);
+      pieceMap.set(key(row,col), p);
+      board[row][col] = colorChar;
     }
 
-    // setup inițial dame
+    // Generate board
+    for (let r = 0; r < N; r++) {
+      for (let c = 0; c < N; c++) addSquare(r, c);
+    }
+
+    // Initial setup: alb sus (0..2), negru jos (5..7), doar pe pătrate negre
     for (let r = 0; r <= 2; r++) {
-      for (let c = 0; c < N; c++) {
-        if ((r + c) % 2 === 1) addPiece(r, c, "#f5f5f5");
-      }
+      for (let c = 0; c < N; c++) if ((r + c) % 2 === 1) addPiece(r, c, 'w');
     }
     for (let r = 5; r <= 7; r++) {
-      for (let c = 0; c < N; c++) {
-        if ((r + c) % 2 === 1) addPiece(r, c, "#111");
+      for (let c = 0; c < N; c++) if ((r + c) % 2 === 1) addPiece(r, c, 'b');
+    }
+
+    setTurnText();
+
+    // =========================
+    // Reguli de bază (fără regi)
+    // =========================
+    function getDirs(colorChar) {
+      // alb (w) merge "în jos" (r + 1), negru (b) merge "în sus" (r - 1)
+      return colorChar === 'w' ? [ +1 ] : [ -1 ];
+    }
+
+    function getMovesForPiece(r, c, colorChar) {
+      // returnează { moves: [...], captures: [...] }
+      const moves = [];
+      const captures = [];
+      const stepDirs = getDirs(colorChar);
+      const enemy = (colorChar === 'w') ? 'b' : 'w';
+
+      for (const dr of stepDirs) {
+        for (const dc of [-1, +1]) {
+          const r1 = r + dr;
+          const c1 = c + dc;
+          if (!inBounds(r1,c1)) continue;
+
+          if (board[r1][c1] === null) {
+            // mutare simplă
+            moves.push({ toR: r1, toC: c1, capture: null });
+          } else if (board[r1][c1] === enemy) {
+            // posibilă captură: sărim încă un pătrat
+            const r2 = r + 2*dr;
+            const c2 = c + 2*dc;
+            if (inBounds(r2,c2) && board[r2][c2] === null) {
+              captures.push({ toR: r2, toC: c2, capture: { r: r1, c: c1 } });
+            }
+          }
+        }
       }
+
+      return { moves, captures };
+    }
+
+    function anyCaptureAvailable(forColor) {
+      for (let r = 0; r < N; r++) {
+        for (let c = 0; c < N; c++) {
+          if (board[r][c] === forColor) {
+            const { captures } = getMovesForPiece(r, c, forColor);
+            if (captures.length > 0) return true;
+          }
+        }
+      }
+      return false;
+    }
+
+    // =========================
+    // Interacțiune: select / highlight / move
+    // =========================
+    function onPieceTap(r, c) {
+      const colorChar = board[r][c];
+      if (!colorChar) return;
+
+      // dacă suntem în multi-captură, trebuie să continui doar cu piesa selectată
+      if (mustContinueCapture) {
+        if (!selected || selected.r !== r || selected.c !== c) return;
+      }
+
+      // doar piesa din tura curentă
+      if (colorChar !== turn) return;
+
+      // regulă: dacă există vreo captură disponibilă pentru jucător, trebuie să captureze
+      const mustCapture = anyCaptureAvailable(turn);
+
+      const pieceEl = pieceMap.get(key(r,c));
+      if (!pieceEl) return;
+
+      // reset vizual selecție anterioară
+      if (selected) {
+        const prevEl = selected.el;
+        if (prevEl) setPieceSelectedVisual(prevEl, false);
+      }
+
+      selected = { r, c, el: pieceEl };
+      setPieceSelectedVisual(pieceEl, true);
+
+      clearHighlights();
+
+      // calculează mutările
+      const { moves, captures } = getMovesForPiece(r, c, turn);
+
+      // dacă trebuie captură, highlight doar capturile (și dacă piesa nu poate captura, nu arăta nimic)
+      const list = mustCapture ? captures : (captures.length ? captures : moves);
+
+      // highlight pătratul piesei selectate
+      highlightSquare(r, c, highlightSelected);
+
+      for (const m of list) {
+        const k = key(m.toR, m.toC);
+        possibleMoves.set(k, m);
+        highlightSquare(m.toR, m.toC, m.capture ? highlightCapture : highlightMove);
+      }
+    }
+
+    function onSquareTap(r, c) {
+      if (!selected) return;
+
+      const destKey = key(r,c);
+      if (!possibleMoves.has(destKey)) return; // nu e mutare validă
+
+      const move = possibleMoves.get(destKey);
+      doMove(selected.r, selected.c, move);
+
+      // după mutare: dacă a fost captură și mai există capturi pentru aceeași piesă -> continuă
+      if (move.capture) {
+        const { captures } = getMovesForPiece(move.toR, move.toC, turn);
+        if (captures.length > 0) {
+          // continuă cu aceeași piesă
+          mustContinueCapture = true;
+
+          // re-selectăm piesa și highlight doar capturile următoare
+          const newPieceEl = pieceMap.get(key(move.toR, move.toC));
+          selected = { r: move.toR, c: move.toC, el: newPieceEl };
+
+          clearHighlights();
+          highlightSquare(selected.r, selected.c, highlightSelected);
+          setPieceSelectedVisual(newPieceEl, true);
+
+          for (const m of captures) {
+            possibleMoves.set(key(m.toR, m.toC), m);
+            highlightSquare(m.toR, m.toC, highlightCapture);
+          }
+          return;
+        }
+      }
+
+      // altfel: schimbăm tura
+      mustContinueCapture = false;
+      endTurn();
+    }
+
+    function doMove(fromR, fromC, move) {
+      const pieceEl = pieceMap.get(key(fromR, fromC));
+      if (!pieceEl) return;
+
+      // actualizează board
+      const colorChar = board[fromR][fromC];
+      board[fromR][fromC] = null;
+      board[move.toR][move.toC] = colorChar;
+
+      // actualizează pieceMap
+      pieceMap.delete(key(fromR, fromC));
+      pieceMap.set(key(move.toR, move.toC), pieceEl);
+
+      // mută fizic piesa
+      const { x, z } = cellToWorld(move.toR, move.toC);
+      pieceEl.setAttribute("position", `${x} ${pieceY} ${z}`);
+      pieceEl.setAttribute("data-row", move.toR);
+      pieceEl.setAttribute("data-col", move.toC);
+
+      // re-atașăm handlerul cu noile coordonate (simplu și sigur)
+      pieceEl.replaceWith(pieceEl);
+      // (în practică, handlerul rămâne, dar coordonatele din closure vechi rămân;
+      //  cel mai simplu e să refacem listener-ul)
+      pieceEl.addEventListener("click", () => onPieceTap(move.toR, move.toC));
+
+      // captură
+      if (move.capture) {
+        const capR = move.capture.r;
+        const capC = move.capture.c;
+        const capEl = pieceMap.get(key(capR, capC));
+        if (capEl) capEl.parentNode.removeChild(capEl);
+        pieceMap.delete(key(capR, capC));
+        board[capR][capC] = null;
+      }
+
+      // curățăm highlight după mutare
+      clearHighlights();
+
+      // selectarea piesei (dacă suntem în multi-captură o punem iar selectată în onSquareTap)
+      if (selected && selected.el) setPieceSelectedVisual(selected.el, false);
+      selected = null;
+    }
+
+    function endTurn() {
+      clearHighlights();
+
+      if (selected && selected.el) setPieceSelectedVisual(selected.el, false);
+      selected = null;
+
+      turn = (turn === 'w') ? 'b' : 'w';
+      setTurnText();
     }
   </script>
 </body>
