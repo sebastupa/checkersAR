@@ -24,14 +24,23 @@
   >
     <a-marker preset="hiro" scale="0.38 0.38 0.38">
 
-      <!-- Baza tablei: neutru (nu aceeași cu pătratele) -->
-      <!-- Top: yTop = -0.22 + 0.35/2 = -0.045 -->
+      <!-- MARGINEA TABLEI (mai mare + mai înaltă) -->
       <a-box
-        position="0 -0.22 0"
+        position="0 -0.12 0"
+        width="4.3"
+        height="0.26"
+        depth="4.3"
+        color="#b08968"
+      ></a-box>
+
+      <!-- PLACA INTERIOARĂ (suprafața de joc) -->
+      <!-- top = -0.12 + 0.16/2 = -0.04 -->
+      <a-box
+        position="0 -0.12 0"
         width="4"
-        height="0.35"
+        height="0.16"
         depth="4"
-        color="#c9b28a"
+        color="#e6d3a3"
       ></a-box>
 
       <a-entity id="board-squares"></a-entity>
@@ -48,16 +57,17 @@
     const CELL = BOARD_SIZE / N; // 0.5
     const HALF = BOARD_SIZE / 2; // 2
 
-    const boardY = -0.22;
-    const boardH = 0.35;
-    const yTop = boardY + boardH / 2; // -0.045
+    // placa interioară
+    const boardY = -0.12;
+    const boardH = 0.16;
+    const yTop = boardY + boardH / 2; // -0.04
 
-    // pătratele ca plăcuțe
-    const squareH = 0.03; // puțin mai groase
-    const squareY = yTop + squareH / 2 + 0.01; // mai sus => vizibil sigur
+    // pătrățele (groase + ridicate)
+    const squareH = 0.08;
+    const gap = 0.03;
+    const squareY = yTop + gap + squareH / 2;
 
-    // CONTRAST MARE (ca să se vadă pe orice cameră)
-    const lightColor = "#fff4d6";
+    const lightColor = "#fff2cf";
     const darkColor  = "#6b3f1d";
 
     const boardEl = document.getElementById("board-squares");
@@ -80,7 +90,7 @@
       boardEl.appendChild(sq);
     }
 
-    // 8x8 complet, alternanță corectă
+    // generare tablă 8x8
     for (let r = 0; r < N; r++) {
       for (let c = 0; c < N; c++) {
         const isDark = (r + c) % 2 === 1;
@@ -88,10 +98,10 @@
       }
     }
 
-    // Piese
+    // piese
     const pieceH = 0.07;
     const pieceR = 0.14;
-    const pieceY = squareY + squareH / 2 + pieceH / 2 + 0.002;
+    const pieceY = squareY + squareH / 2 + pieceH / 2 + 0.005;
 
     function addPiece(row, col, color) {
       const { x, z } = cellToWorld(row, col);
@@ -103,7 +113,7 @@
       piecesEl.appendChild(p);
     }
 
-    // Setare inițială (12+12) pe pătratele închise
+    // setup inițial dame
     for (let r = 0; r <= 2; r++) {
       for (let c = 0; c < N; c++) {
         if ((r + c) % 2 === 1) addPiece(r, c, "#f5f5f5");
