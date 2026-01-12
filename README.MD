@@ -54,3 +54,11 @@ https://upload.wikimedia.org/wikipedia/commons/4/48/Hiro_marker_ARjs.png
 - După o captură, dacă este posibilă o nouă captură, jucătorul continuă
 - Nu sunt implementate piese de tip „damă” (king)
 
+## 📌 Credite
+
+Această aplicație a fost realizată de **Sebastian Upa** în cadrul activităților de laborator pentru disciplina  
+**Inteligență ambientală și realitate augmentată**,  
+**Universitatea „Ștefan cel Mare” din Suceava (USV)**.
+
+Proiectul are scop educațional și urmărește familiarizarea cu tehnologiile de Realitate Augmentată (AR), dezvoltarea unei aplicații interactive 3D și implementarea regulilor de bază ale unui joc într-un mediu AR marker-based.
+
